@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interativo</title>
+    <style>
+        #map {
+            height: 80vh;
+            width: 100%;
+        }
+        #filters, #add-location, #coordinates {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .filter, #coordinates {
+            margin: 0 10px;
+        }
+        #add-location {
+            flex-direction: column;
+            align-items: center;
+        }
+        #add-location input, #add-location button {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="filters">
+        <label class="filter"><input type="checkbox" value="library" checked> Bibliotecas</label>
+        <label class="filter"><input type="checkbox" value="book_store" checked> Lojas de Livros</label>
+        <label class="filter"><input type="checkbox" value="park" checked> Parques</label>
+        <label class="filter"><input type="checkbox" value="gym" checked> Centros Esportivos</label>
+        <label class="filter"><input type="checkbox" value="school" checked> Escolas</label>
+        <label class="filter"><input type="checkbox" value="university" checked> Cursos</label>
+    </div>
+    <div id="add-location">
+        <input type="text" id="location-name" placeholder="Nome do Local">
+        <input type="text" id="location-lat" placeholder="Latitude">
+        <input type="text" id="location-lng" placeholder="Longitude">
+        <button onclick="addCustomLocation()">Adicionar Local</button>
+    </div>
+    <div id="coordinates">Latitude: <span id="lat"></span>, Longitude: <span id="lng"></span></div>
+    <div id="map"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwFWq51x4_0S7QuKmhu77NasV2zK6MY00&libraries=places&callback=initMap" async defer></script>
+    <script src="script.js"></script>
+</body>
+</html>
