@@ -3,7 +3,7 @@ let service;
 let infowindow;
 let marker;
 let markers = [];
-let selectedTypes = ['library', 'book_store', 'park', 'gym', 'school', 'university'];
+let selectedTypes = ['bibliotecas', 'livros', 'recreação', 'esportes', 'escolas', 'cursos'];
 
 function initMap() {
     if (navigator.geolocation) {
@@ -27,13 +27,17 @@ function initMap() {
                 const clickedLocation = event.latLng;
 
                 const name = prompt('Insira o nome do local:');
-                if (name) {
+                const category = prompt('Escolha a categoria e digite: Bibliotecas, Livros, Recreação, Esportes, Escolas ou Cursos');
+                if (name && category && selectedTypes.includes(category)) {
                     const customLocation = {
                         name: name,
+                        category: category,
                         geometry: { location: clickedLocation }
                     };
-                    addCustomLocationToServer(name, clickedLocation.lat(), clickedLocation.lng());
+                    addCustomLocationToServer(name, clickedLocation.lat(), clickedLocation.lng(), category);
                     createCustomMarker(customLocation);
+                } else {
+                    alert('Nome e categoria são obrigatórios e a categoria deve ser válida.');
                 }
             });
 
@@ -108,13 +112,13 @@ function clearMarkers() {
     markers = [];
 }
 
-function addCustomLocationToServer(name, lat, lng) {
+function addCustomLocationToServer(name, lat, lng, category) {
     fetch('http://localhost:3000/locations', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, latitude: lat, longitude: lng })
+        body: JSON.stringify({ name, latitude: lat, longitude: lng, category })
     })
     .then(response => response.json())
     .then(data => {
@@ -132,6 +136,7 @@ function loadLocationsFromServer() {
         data.forEach(location => {
             const customLocation = {
                 name: location.name,
+                category: location.category,
                 geometry: { location: new google.maps.LatLng(location.latitude, location.longitude) }
             };
             createCustomMarker(customLocation);
@@ -146,10 +151,11 @@ function addCustomLocation() {
     const name = document.getElementById('location-name').value;
     const lat = parseFloat(document.getElementById('location-lat').value);
     const lng = parseFloat(document.getElementById('location-lng').value);
+    const category = document.getElementById('location-category').value;
 
-    if (name && !isNaN(lat) && !isNaN(lng)) {
-        const customLocation = { name: name, geometry: { location: new google.maps.LatLng(lat, lng) } };
-        addCustomLocationToServer(name, lat, lng);
+    if (name && !isNaN(lat) && !isNaN(lng) && category) {
+        const customLocation = { name: name, category: category, geometry: { location: new google.maps.LatLng(lat, lng) } };
+        addCustomLocationToServer(name, lat, lng, category);
         createCustomMarker(customLocation);
         map.setCenter(customLocation.geometry.location);
     } else {
@@ -166,7 +172,7 @@ function createCustomMarker(place) {
     markers.push(marker);
 
     google.maps.event.addListener(marker, 'click', function() {
-        infowindow.setContent(place.name);
+        infowindow.setContent(`${place.name} (${place.category})`);
         infowindow.open(map, this);
     });
 }

@@ -34,13 +34,13 @@ app.get('/locations', (req, res) => {
 });
 
 app.post('/locations', (req, res) => {
-    const { name, latitude, longitude } = req.body;
-    const query = 'INSERT INTO locations (name, latitude, longitude) VALUES (?, ?, ?)';
-    db.query(query, [name, latitude, longitude], (err, result) => {
+    const { name, latitude, longitude, category } = req.body;
+    const query = 'INSERT INTO locations (name, latitude, longitude, category) VALUES (?, ?, ?, ?)';
+    db.query(query, [name, latitude, longitude, category], (err, result) => {
         if (err) {
             res.status(500).send(err);
         } else {
-            res.status(201).json({ id: result.insertId, name, latitude, longitude });
+            res.status(201).json({ id: result.insertId, name, latitude, longitude, category });
         }
     });
 });
