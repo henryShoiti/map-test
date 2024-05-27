@@ -26,10 +26,15 @@ function initMap() {
             map.addListener('click', function(event) {
                 const clickedLocation = event.latLng;
 
-                marker.setPosition(clickedLocation);
-                map.setCenter(clickedLocation);
-
-                searchNearby(clickedLocation);
+                const name = prompt('Insira o nome do local:');
+                if (name) {
+                    const customLocation = {
+                        name: name,
+                        geometry: { location: clickedLocation }
+                    };
+                    addCustomLocationToServer(name, clickedLocation.lat(), clickedLocation.lng());
+                    createCustomMarker(customLocation);
+                }
             });
 
             map.addListener('mousemove', function(event) {
@@ -38,6 +43,7 @@ function initMap() {
             });
 
             searchNearby(userLocation);
+            loadLocationsFromServer();
 
             document.querySelectorAll('.filter input').forEach((checkbox) => {
                 checkbox.addEventListener('change', () => {
@@ -102,6 +108,40 @@ function clearMarkers() {
     markers = [];
 }
 
+function addCustomLocationToServer(name, lat, lng) {
+    fetch('http://localhost:3000/locations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, latitude: lat, longitude: lng })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Local adicionado:', data);
+    })
+    .catch((error) => {
+        console.error('Erro:', error);
+    });
+}
+
+function loadLocationsFromServer() {
+    fetch('http://localhost:3000/locations')
+    .then(response => response.json())
+    .then(data => {
+        data.forEach(location => {
+            const customLocation = {
+                name: location.name,
+                geometry: { location: new google.maps.LatLng(location.latitude, location.longitude) }
+            };
+            createCustomMarker(customLocation);
+        });
+    })
+    .catch((error) => {
+        console.error('Erro:', error);
+    });
+}
+
 function addCustomLocation() {
     const name = document.getElementById('location-name').value;
     const lat = parseFloat(document.getElementById('location-lat').value);
@@ -109,6 +149,7 @@ function addCustomLocation() {
 
     if (name && !isNaN(lat) && !isNaN(lng)) {
         const customLocation = { name: name, geometry: { location: new google.maps.LatLng(lat, lng) } };
+        addCustomLocationToServer(name, lat, lng);
         createCustomMarker(customLocation);
         map.setCenter(customLocation.geometry.location);
     } else {
