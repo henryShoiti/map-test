@@ -3,7 +3,17 @@ let service;
 let infowindow;
 let marker;
 let markers = [];
-let selectedTypes = ['bibliotecas', 'livros', 'recreação', 'esportes', 'escolas', 'cursos'];
+let selectedTypes = ['library', 'book_store', 'park', 'gym', 'school', 'university'];
+let clickedLocation;
+
+const categoryTranslations = {
+    library: 'Biblioteca',
+    book_store: 'Loja de Livros',
+    park: 'Parque',
+    gym: 'Centro Esportivo',
+    school: 'Escola',
+    university: 'Curso'
+};
 
 function initMap() {
     if (navigator.geolocation) {
@@ -24,21 +34,8 @@ function initMap() {
             });
 
             map.addListener('click', function(event) {
-                const clickedLocation = event.latLng;
-
-                const name = prompt('Insira o nome do local:');
-                const category = prompt('Escolha a categoria e digite: Bibliotecas, Livros, Recreação, Esportes, Escolas ou Cursos');
-                if (name && category && selectedTypes.includes(category)) {
-                    const customLocation = {
-                        name: name,
-                        category: category,
-                        geometry: { location: clickedLocation }
-                    };
-                    addCustomLocationToServer(name, clickedLocation.lat(), clickedLocation.lng(), category);
-                    createCustomMarker(customLocation);
-                } else {
-                    alert('Nome e categoria são obrigatórios e a categoria deve ser válida.');
-                }
+                clickedLocation = event.latLng;
+                openModal();
             });
 
             map.addListener('mousemove', function(event) {
@@ -100,7 +97,7 @@ function createMarker(place) {
     markers.push(marker);
 
     google.maps.event.addListener(marker, 'click', function() {
-        infowindow.setContent(place.name);
+        infowindow.setContent(`${place.name} (${categoryTranslations[place.types[0]] || place.types[0]})`);
         infowindow.open(map, this);
     });
 }
@@ -147,6 +144,39 @@ function loadLocationsFromServer() {
     });
 }
 
+function openModal() {
+    const modal = document.getElementById("locationModal");
+    const closeBtn = document.getElementsByClassName("close")[0];
+    modal.style.display = "block";
+
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+}
+
+document.getElementById('saveLocation').addEventListener('click', function() {
+    const name = document.getElementById('modal-location-name').value;
+    const category = document.getElementById('modal-location-category').value;
+    if (name && category) {
+        const customLocation = {
+            name: name,
+            category: category,
+            geometry: { location: clickedLocation }
+        };
+        addCustomLocationToServer(name, clickedLocation.lat(), clickedLocation.lng(), category);
+        createCustomMarker(customLocation);
+        document.getElementById('locationModal').style.display = 'none';
+    } else {
+        alert('Nome e categoria são obrigatórios.');
+    }
+});
+
 function addCustomLocation() {
     const name = document.getElementById('location-name').value;
     const lat = parseFloat(document.getElementById('location-lat').value);
@@ -172,7 +202,7 @@ function createCustomMarker(place) {
     markers.push(marker);
 
     google.maps.event.addListener(marker, 'click', function() {
-        infowindow.setContent(`${place.name} (${place.category})`);
+        infowindow.setContent(`${place.name} (${categoryTranslations[place.category] || place.category})`);
         infowindow.open(map, this);
     });
 }
