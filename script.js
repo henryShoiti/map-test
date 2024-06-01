@@ -206,3 +206,44 @@ function createCustomMarker(place) {
         infowindow.open(map, this);
     });
 }
+
+document.getElementById('open-feedback-btn').addEventListener('click', function() {
+    document.getElementById('feedback-form-container').style.display = 'block';
+    this.style.display = 'none';
+});
+
+document.getElementById('close-feedback-btn').addEventListener('click', function() {
+    document.getElementById('feedback-form-container').style.display = 'none';
+    document.getElementById('open-feedback-btn').style.display = 'block';
+});
+
+document.getElementById('feedbackForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const feedbackText = document.getElementById('feedbackText').value;
+
+    if (feedbackText) {
+        submitFeedback(feedbackText);
+    } else {
+        alert('Por favor, insira seu feedback.');
+    }
+});
+
+function submitFeedback(feedback) {
+    fetch('http://localhost:3000/feedbacks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ feedback })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Feedback enviado com sucesso!');
+        document.getElementById('feedbackText').value = '';
+        document.getElementById('feedback-form-container').style.display = 'none';
+        document.getElementById('open-feedback-btn').style.display = 'block';
+    })
+    .catch((error) => {
+        console.error('Erro:', error);
+    });
+}

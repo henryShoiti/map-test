@@ -45,6 +45,25 @@ app.post('/locations', (req, res) => {
     });
 });
 
+app.post('/feedbacks', (req, res) => {
+    const feedback = req.body.feedback;
+    const sql = 'INSERT INTO feedbacks (feedback) VALUES (?)';
+
+    db.query(sql, [feedback], (err, result) => {
+        if (err) throw err;
+        res.json({ id: result.insertId, feedback });
+    });
+});
+
+app.get('/feedbacks', (req, res) => {
+    const sql = 'SELECT * FROM feedbacks';
+
+    db.query(sql, (err, results) => {
+        if (err) throw err;
+        res.json(results);
+    });
+});
+
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 });

@@ -32,6 +32,18 @@
     <div id="coordinates">Latitude: <span id="lat"></span>, Longitude: <span id="lng"></span></div>
     <div id="map"></div>
 
+    <!-- Feedback Widget -->
+    <div id="feedback-widget">
+        <button id="open-feedback-btn">Enviar Feedback</button>
+        <div id="feedback-form-container">
+            <form id="feedbackForm">
+                <textarea id="feedbackText" placeholder="Escreva seu feedback aqui..." required></textarea>
+                <button type="submit">Enviar</button>
+                <button type="button" id="close-feedback-btn">Fechar</button>
+            </form>
+        </div>
+    </div>
+
     <!-- The Modal -->
     <div id="locationModal" class="modal">
         <div class="modal-content">
